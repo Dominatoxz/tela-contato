@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return emailRegex.test(email);
     }
     //função pra mostrar estado do campo
-    function setFieldState(field, isValid){
+    function setFieldState(field, errorElement,isValid){
         const control = field.closest('.form-control');
 
         if (isValid){
