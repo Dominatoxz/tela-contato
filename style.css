@@ -111,6 +111,7 @@ header h1{
     left: 0;
     color: #f44336;
     font-size: 0.85em;
+    padding: 0.6em;
 }
 
 .form-control.error small{
