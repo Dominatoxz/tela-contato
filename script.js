@@ -2,77 +2,80 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('contactForm');
     const successMessage = document.getElementById('successMessage');
 
-    function isValidEmail(email){
-        const  emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
-    //função pra mostrar estado do campo
-    function setFieldState(field ,isValid){
+
+    // Corrigido: Agora aceita os 3 parâmetros corretamente
+    function setFieldState(field, errorElement, isValid) {
         const control = field.closest('.form-control');
 
-        if (isValid){
+        if (isValid) {
             control.classList.remove('error');
             control.classList.add('success');
+            // Opcional: esconder mensagem de erro
+            if (errorElement) errorElement.style.display = 'none';
         } else {
             control.classList.remove('success');
             control.classList.add('error');
+            // Opcional: mostrar mensagem de erro
+            if (errorElement) errorElement.style.display = 'block';
         }
     }
 
-    //validar campo
-    function validateField(field){
+    function validateField(field) {
         const value = field.value.trim();
-        const errorElement = field.nextElementSibling; //pegar o elemento imediatamente após o campo
-
-        if (field.type === 'email'){
-            setFieldState(field, errorElement, value === "" ? false: isValidEmail(value));
-            //
-        } else{
-            setFieldState(field, errorElement, value !== "");
+        const errorElement = field.nextElementSibling; 
+        
+        let valid = false;
+        if (field.type === 'email') {
+            valid = value !== "" && isValidEmail(value);
+        } else {
+            valid = value !== "";
         }
+
+        // Passando os argumentos na ordem correta
+        setFieldState(field, errorElement, valid);
     }
-    //validar automaticamente os campos assim que o user interage
-    ['name', 'email', 'subject', 'message'].forEach(id =>{
+
+    ['name', 'email', 'subject', 'message'].forEach(id => {
         const field = document.getElementById(id);
-        field.addEventListener('blur', () => validateField(field));
-        field.addEventListener('input', () => validateField(field));  //valida ao sair digitando
+        if (field) {
+            field.addEventListener('blur', () => validateField(field));
+            field.addEventListener('input', () => validateField(field));
+        }
     });
 
-    //validar fomulario completo
-    function validateForm(){
-        let isValid = true;
-
-        ['name', 'email', 'subject', 'message'].forEach(id =>{
+    function validateForm() {
+        let isFormValid = true;
+        ['name', 'email', 'subject', 'message'].forEach(id => {
             const field = document.getElementById(id);
             validateField(field);
-            if (!field.closest('.form-control').classList.contains('success')){
-                isValid = false;
+            if (!field.closest('.form-control').classList.contains('success')) {
+                isFormValid = false;
             }
         });
-        return isValid;        
+        return isFormValid;
     }
 
-    //submit-envio
-    form.addEventListener('submit', function(e){
-        e.preventDefault();
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // Importante: preventDefault é uma função!
 
-        if(validateForm()){
-            //simular envio
+        if (validateForm()) {
             form.style.opacity = '0.7';
-            
             form.style.pointerEvents = 'none';
 
             setTimeout(() => {
                 successMessage.classList.add('show');
                 form.reset();
                 form.style.opacity = '1';
-                form.style.pointerEvents = 'auto';
+                form.style.pointerEvents = 'auto'; // Corrigido de 'autor' para 'auto'
 
-                //Resetar todas as classes após reset 
                 document.querySelectorAll('.form-control').forEach(control => {
                     control.classList.remove('success', 'error');
                 });
-            },1500);
+            }, 1500);
         }
     });
 });
